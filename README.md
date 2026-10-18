@@ -11,8 +11,15 @@ as a path that ends at NEET-UG, the entrance exam for MBBS in India, plus a free
 |---|---|
 | Class 1-5 (EVS science strands) | about 1,700 |
 | Class 6-10 (Physics, Chemistry, Biology foundation) | about 4,500 |
-| Class 11-12 NEET syllabus chapters | about 6,500 (Physics 2,200, Chemistry 1,650, Biology 2,600) |
+| Class 11-12 NEET syllabus chapters | 8,830 (Physics 2,912, Chemistry 2,162, Biology 3,756) |
 | Class 11-12 chapters removed from NEET (kept for school) | about 150 |
+| **Total** | **15,136**, of which 2,352 are NEET formats (978 match-the-list, 992 multi-statement, 382 assertion-reason) |
+
+* **NEET question formats** (`hub/core.py`, `hub/gen_ar.py`): match List I with List II, "how many statements are
+  correct" / "which statements are correct", and assertion-reason (curated pairs plus pairs built from checked
+  statements). The `question_type` column says which format a question is (`mcq`, `match`, `multi`, `ar`).
+* **Revision notes** (`hub/notes.py`, `notes_hi.py`, `notes_bn.py`): 6 key points for each of the 79 NEET chapters
+  in English, Hindi and Bengali. Chapter and unit names are translated in `hub/titles_i18n.py`.
 
 * **Syllabus map** (`hub/syllabus.py`): the 50 NMC NEET-UG units (20 Physics, 20 Chemistry, 10 Biology) linked to
   every NCERT Class 11-12 chapter (79 chapters, Biology split into Botany and Zoology as in the exam).
@@ -29,7 +36,15 @@ as a path that ends at NEET-UG, the entrance exam for MBBS in India, plus a free
 * **Mock tests** in the NEET-UG pattern: Physics 45, Chemistry 45, Botany 45, Zoology 45 (180 questions,
   180 minutes, +4/-1), plus half and quick versions. OMR-style answer sheet, mark for review, timer, and the test is
   saved as you go. Results show section scores and a review of every wrong or blank question.
-* **My progress**: accuracy by subject, weakest chapters, mock history. Saved in the browser.
+* **Weekly Mock Day**: one full-length paper per week (seeded by the ISO week, so everyone gets the same paper),
+  a weekly streak, and a line chart of full-length mock scores over time.
+* **Revise**: the revision notes for each chapter, then straight into practice; "NEET formats" practises only
+  match, statement and assertion-reason questions.
+* **Languages**: the site is in English, Hindi and Bengali (picker in the top bar). Question texts stay in English.
+* **Disclaimer and reporting**: "Answers are AI-generated. Please confirm them with your mentor or teacher." appears
+  under every explanation, at the top of the Path page and in the footer. Every question has a "Report a problem"
+  link that opens a prefilled GitHub issue with the question id.
+* **My progress**: accuracy by subject, weakest chapters, the score chart and mock history. Saved in the browser.
 * Chapters taught by the Ecos-Synthetica game link to it, and the game's quiz draws on this hub.
 
 ## Build

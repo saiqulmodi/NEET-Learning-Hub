@@ -17,9 +17,15 @@ import sqlite3
 import sys
 from collections import Counter, defaultdict
 
-from hub.core import REGISTRY
-from hub import gen_bio11, gen_bio12, gen_phys, gen_chem, gen_extra  # noqa: F401  (register generators)
+from hub.core import REGISTRY, NEW_TYPES, AR_OPTIONS, register_new_types
+from hub import gen_bio11, gen_bio12, gen_phys, gen_chem, gen_extra, gen_ar  # noqa: F401  (register generators)
 from hub.syllabus import CHAPTERS, NEET_UNITS, chapter_for_bank
+from hub.notes import NOTES
+from hub.notes_hi import NOTES_HI
+from hub.notes_bn import NOTES_BN
+from hub.titles_i18n import CHAPTER as TITLE_CH, UNIT as TITLE_UNIT, FOUNDATION as TITLE_FOUND
+
+register_new_types()
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 BANK = r"C:\Users\saiqu\Projects\School_MCQ_Bank\output\mcq_bank.db"
@@ -27,6 +33,8 @@ OUT = os.path.join(ROOT, "output")
 WEB = os.path.join(ROOT, "docs", "data")
 SEED = 20261018
 NEW_PER_CHAPTER = {"Biology": 80, "Chemistry": 60, "Physics": 60}
+# Assertion-reason, match-the-list and multi-statement questions per chapter (NEET's newer formats).
+NEW_TYPES_PER_CHAPTER = {"Biology": 36, "Chemistry": 24, "Physics": 24}
 MAX_FAILS = 120
 
 
@@ -50,20 +58,20 @@ def import_bank(seen):
             continue
         seen.add(key)
         rows.append(dict(chapter_id=ch["id"], difficulty=diff, question=q, opts=[a, b, c, d], correct="ABCD".index(co),
-                         explanation=ex or "", source="School MCQ Bank", bank_id=bid))
+                         explanation=ex or "", source="School MCQ Bank", bank_id=bid, qtype="mcq"))
     con.close()
     return rows, skipped
 
 
-def generate(seen, rng):
+def generate(seen, rng, registry, quotas):
     rows = []
     shortfalls = []
     by_ch = defaultdict(list)
-    for g in REGISTRY:
+    for g in registry:
         by_ch[g["chapter"]].append(g)
     for cid in sorted(by_ch):
         ch = CHAPTERS[cid]
-        quota = NEW_PER_CHAPTER[ch["subject"]]
+        quota = quotas[ch["subject"]]
         cycle = [g for g in by_ch[cid] for _ in range(g["weight"])]
         fails = defaultdict(int)
         made = 0
@@ -83,10 +91,14 @@ def generate(seen, rng):
                 continue
             fails[id(g)] = 0
             seen.add(key)
-            opts = q["wrongs"] + [q["answer"]]
-            rng.shuffle(opts)
+            kind = g.get("kind", "mcq")
+            if kind == "ar":
+                opts = list(AR_OPTIONS)   # NEET keeps assertion-reason options in this fixed order
+            else:
+                opts = q["wrongs"] + [q["answer"]]
+                rng.shuffle(opts)
             rows.append(dict(chapter_id=cid, difficulty=q.get("difficulty") or g.get("difficulty") or "Medium",
-                             question=q["question"], opts=opts, correct=opts.index(q["answer"]),
+                             question=q["question"], opts=opts, correct=opts.index(q["answer"]), qtype=kind,
                              explanation=q["explanation"], source="NEET Hub generator", bank_id=None))
             made += 1
         if made < quota:
@@ -122,16 +134,18 @@ def write(rows):
                    neet_unit INTEGER, neet_unit_title TEXT, title TEXT, in_neet INTEGER, ecos_link TEXT)""")
     con.execute("""CREATE TABLE questions (id INTEGER PRIMARY KEY, chapter_id TEXT REFERENCES chapters(id), class_level INTEGER,
                    subject TEXT, difficulty TEXT, question TEXT, option_a TEXT, option_b TEXT, option_c TEXT, option_d TEXT,
-                   correct_option TEXT, correct_answer TEXT, explanation TEXT, source TEXT, bank_id INTEGER)""")
+                   correct_option TEXT, correct_answer TEXT, explanation TEXT, source TEXT, bank_id INTEGER,
+                   question_type TEXT)""")
     con.execute("CREATE INDEX idx_q_chapter ON questions(chapter_id)")
     con.execute("CREATE INDEX idx_q_class_subject ON questions(class_level, subject)")
     used = {r["chapter_id"] for r in rows}
     con.executemany("INSERT INTO chapters VALUES (?,?,?,?,?,?,?,?,?)",
                     [(c["id"], c["cls"], c["subject"], c["branch"], c["unit"], c["unit_title"], c["title"], int(c["neet"]), c["ecos"])
                      for c in CHAPTERS.values() if c["id"] in used])
-    con.executemany("INSERT INTO questions VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+    con.executemany("INSERT INTO questions VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                     [(r["id"], r["chapter_id"], CHAPTERS[r["chapter_id"]]["cls"], CHAPTERS[r["chapter_id"]]["subject"], r["difficulty"],
-                      r["question"], *r["opts"], "ABCD"[r["correct"]], r["opts"][r["correct"]], r["explanation"], r["source"], r["bank_id"])
+                      r["question"], *r["opts"], "ABCD"[r["correct"]], r["opts"][r["correct"]], r["explanation"], r["source"], r["bank_id"],
+                      r["qtype"])
                      for r in rows])
     con.commit()
     con.close()
@@ -139,24 +153,41 @@ def write(rows):
     with open(os.path.join(OUT, "neet_hub.csv"), "w", encoding="utf-8-sig", newline="") as f:
         w = csv.writer(f)
         w.writerow(["id", "class", "subject", "chapter_id", "chapter", "neet_unit", "difficulty", "question", "option_a", "option_b",
-                    "option_c", "option_d", "correct_option", "explanation", "source"])
+                    "option_c", "option_d", "correct_option", "explanation", "source", "question_type"])
         for r in rows:
             c = CHAPTERS[r["chapter_id"]]
             w.writerow([r["id"], c["cls"], c["subject"], c["id"], c["title"], c["unit_title"], r["difficulty"], r["question"],
-                        *r["opts"], "ABCD"[r["correct"]], r["explanation"], r["source"]])
+                        *r["opts"], "ABCD"[r["correct"]], r["explanation"], r["source"], r["qtype"]])
 
     counts = Counter(r["chapter_id"] for r in rows)
-    index = dict(units=NEET_UNITS, chapters=[
-        dict(id=c["id"], cls=c["cls"], subject=c["subject"], branch=c["branch"], unit=c["unit"], unitTitle=c["unit_title"],
-             title=c["title"], neet=c["neet"], ecos=c["ecos"], count=counts[c["id"]])
-        for c in CHAPTERS.values() if counts[c["id"]]])
+    types = defaultdict(Counter)
+    for r in rows:
+        types[r["chapter_id"]][r["qtype"]] += 1
+
+    def names(c):
+        hi_bn = TITLE_CH.get(c["id"]) or TITLE_FOUND.get(c["title"]) or (c["title"], c["title"])
+        unit = TITLE_UNIT.get(c["unit_title"], (c["unit_title"], c["unit_title"]))
+        return {"hi": hi_bn[0], "bn": hi_bn[1]}, {"hi": unit[0], "bn": unit[1]}
+
+    chapters = []
+    for c in CHAPTERS.values():
+        if not counts[c["id"]]:
+            continue
+        t, ut = names(c)
+        chapters.append(dict(id=c["id"], cls=c["cls"], subject=c["subject"], branch=c["branch"], unit=c["unit"], unitTitle=c["unit_title"],
+                             title=c["title"], t=t, ut=ut, neet=c["neet"], ecos=c["ecos"], count=counts[c["id"]],
+                             types=dict(types[c["id"]]), notes=c["id"] in NOTES))
+    index = dict(units=NEET_UNITS, chapters=chapters)
+    with open(os.path.join(WEB, "notes.json"), "w", encoding="utf-8") as f:
+        json.dump({cid: {"en": NOTES[cid], "hi": NOTES_HI.get(cid, []), "bn": NOTES_BN.get(cid, [])} for cid in NOTES},
+                  f, ensure_ascii=False, separators=(",", ":"))
     with open(os.path.join(WEB, "index.json"), "w", encoding="utf-8") as f:
         json.dump(index, f, ensure_ascii=False, separators=(",", ":"))
     by_cls = defaultdict(list)
     for r in rows:
         by_cls[CHAPTERS[r["chapter_id"]]["cls"]].append(
             [r["id"], r["chapter_id"], r["difficulty"][0], r["question"], r["opts"], r["correct"], r["explanation"],
-             1 if r["source"] == "School MCQ Bank" else 0])
+             1 if r["source"] == "School MCQ Bank" else 0, r["qtype"]])
     for cls, qs in by_cls.items():
         with open(os.path.join(WEB, f"c{cls:02d}.json"), "w", encoding="utf-8") as f:
             json.dump(qs, f, ensure_ascii=False, separators=(",", ":"))
@@ -167,11 +198,13 @@ def main():
     rng = random.Random(SEED)
     seen = set()
     bank_rows, skipped = import_bank(seen)
-    new_rows, shortfalls = generate(seen, rng)
-    rows = bank_rows + new_rows
+    new_rows, shortfalls = generate(seen, rng, REGISTRY, NEW_PER_CHAPTER)
+    type_rows, _ = generate(seen, rng, NEW_TYPES, NEW_TYPES_PER_CHAPTER)
+    rows = bank_rows + new_rows + type_rows
     problems = validate(rows)
     print(f"From School MCQ Bank: {len(bank_rows)} (left out as non-science: {sum(skipped.values())})")
     print(f"New NEET questions:   {len(new_rows)}")
+    print(f"NEET-format questions: {len(type_rows)}  " + ", ".join(f"{k} {n}" for k, n in Counter(r['qtype'] for r in type_rows).items()))
     print(f"Total:                {len(rows)}")
     by = Counter((CHAPTERS[r['chapter_id']]['cls'], CHAPTERS[r['chapter_id']]['subject']) for r in rows)
     for cls in range(1, 13):
@@ -183,6 +216,16 @@ def main():
         print("Chapters where generators ran out before the target:")
         for cid, made, quota in shortfalls:
             print(f"  {cid} {CHAPTERS[cid]['title']}: {made}/{quota}")
+    for c in CHAPTERS.values():
+        if c["neet"]:
+            n = len(NOTES.get(c["id"], []))
+            if not n or len(NOTES_HI.get(c["id"], [])) != n or len(NOTES_BN.get(c["id"], [])) != n:
+                problems.append(("notes missing or translations out of step", c["id"], n))
+            if c["id"] not in TITLE_CH:
+                problems.append(("chapter title not translated", c["id"]))
+    used_titles = {CHAPTERS[r["chapter_id"]]["title"] for r in rows if CHAPTERS[r["chapter_id"]]["cls"] <= 10}
+    for t in sorted(used_titles - set(TITLE_FOUND)):
+        problems.append(("foundation title not translated", t))
     thin = [c for c in CHAPTERS.values() if c["neet"] and sum(1 for r in rows if r["chapter_id"] == c["id"]) < 40]
     for c in thin:
         print(f"THIN NEET CHAPTER: {c['id']} {c['title']}")
