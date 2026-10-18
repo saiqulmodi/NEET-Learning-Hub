@@ -27,7 +27,7 @@
       'loading': 'Loading the question hub...', 'loadingQ': 'Loading questions...', 'loadFail': 'The question data could not be loaded. Please check your connection and reload.',
       'sub.Physics': 'Physics', 'sub.Chemistry': 'Chemistry', 'sub.Biology': 'Biology', 'sub.Botany': 'Botany', 'sub.Zoology': 'Zoology',
       'path.eyebrow': 'Biology · Chemistry · Physics', 'path.h1': 'From Class 1 to the NEET hall',
-      'path.lead': '{total} questions with answers and explanations, arranged by class and chapter. Classes 1-10 build the foundation; Class 11-12 chapters follow the NCERT books and the official NEET-UG units ({neet} questions, including assertion-reason, match-the-list and multi-statement questions). Revise a chapter, practise it, then take the weekly NEET mock.',
+      'path.lead': '{total} questions with answers and explanations, arranged by class and chapter. Classes 1-10 build the foundation; Class 11-12 chapters follow the NCERT books and the official NEET-UG units ({neet} questions, including assertion-reason, match-the-list and multi-statement questions, and high-yield questions on the topics NEET asks again and again). Revise a chapter, practise it, then take the weekly NEET mock.',
       'rung.class': 'Class', 'rung.exam': 'Exam', 'rung.mock': 'mock',
       'cls.neet': 'NEET syllabus', 'cls.sci': 'Science foundation', 'cls.evs': 'EVS foundation',
       'next.class': 'Next: Class {n}', 'next.mock': 'Next: NEET mock test', 'qcount': '{n} questions', 'unit': 'NEET unit {n}: ',
@@ -40,7 +40,8 @@
       'q.english': 'Questions are in English.', 'type.ar': 'Assertion-Reason', 'type.match': 'Match the list', 'type.multi': 'Statements',
       'sum.all': 'All correct. Try a NEET mock to test it under time pressure.', 'sum.good': 'Good work. Practise again to clear the ones you missed.',
       'sum.low': 'Read the explanations and the revision notes, then practise again; missed questions come back first.', 'sum.more': 'Practise 10 more',
-      'sum.formats': 'NEET-format practice',
+      'sum.formats': 'NEET-format practice', 'sum.hy': 'High-yield practice', 'q.hy': 'High-yield NEET topic',
+      'meta.hy': '{n} high-yield', 'notes.hy': 'Practise high-yield questions',
       'mock.eyebrow': 'NEET-UG pattern', 'mock.h1': 'Mock tests',
       'mock.lead': 'Questions come from every NEET chapter of Class 11 and 12, spread evenly across chapters, including assertion-reason, match-the-list and statement questions. Marking follows NEET: +4 correct, -1 wrong, 0 blank. Your test is saved as you go.',
       'mode.weekly': 'Mock Day paper', 'mode.full': 'Full NEET mock', 'mode.half': 'Half mock', 'mode.quick': 'Quick test',
@@ -74,7 +75,7 @@
       'loading': 'प्रश्न हब लोड हो रहा है...', 'loadingQ': 'प्रश्न लोड हो रहे हैं...', 'loadFail': 'प्रश्न डेटा लोड नहीं हो सका। कृपया इंटरनेट जाँचकर फिर से लोड करें।',
       'sub.Physics': 'भौतिकी', 'sub.Chemistry': 'रसायन विज्ञान', 'sub.Biology': 'जीव विज्ञान', 'sub.Botany': 'वनस्पति विज्ञान', 'sub.Zoology': 'प्राणि विज्ञान',
       'path.eyebrow': 'जीव विज्ञान · रसायन विज्ञान · भौतिकी', 'path.h1': 'कक्षा 1 से NEET परीक्षा हॉल तक',
-      'path.lead': 'कक्षा और अध्याय के अनुसार {total} प्रश्न, उत्तर और व्याख्या सहित। कक्षा 1-10 नींव बनाती हैं; कक्षा 11-12 के अध्याय NCERT पुस्तकों और आधिकारिक NEET-UG इकाइयों पर हैं ({neet} प्रश्न, अभिकथन-कारण, सूची मिलान और कथन वाले प्रश्नों सहित)। अध्याय दोहराएँ, अभ्यास करें, फिर साप्ताहिक NEET मॉक दें।',
+      'path.lead': 'कक्षा और अध्याय के अनुसार {total} प्रश्न, उत्तर और व्याख्या सहित। कक्षा 1-10 नींव बनाती हैं; कक्षा 11-12 के अध्याय NCERT पुस्तकों और आधिकारिक NEET-UG इकाइयों पर हैं ({neet} प्रश्न, अभिकथन-कारण, सूची मिलान और कथन वाले प्रश्नों सहित, और उन विषयों पर अति-महत्वपूर्ण प्रश्न जो NEET में बार-बार पूछे जाते हैं)। अध्याय दोहराएँ, अभ्यास करें, फिर साप्ताहिक NEET मॉक दें।',
       'rung.class': 'कक्षा', 'rung.exam': 'परीक्षा', 'rung.mock': 'मॉक',
       'cls.neet': 'NEET पाठ्यक्रम', 'cls.sci': 'विज्ञान की नींव', 'cls.evs': 'पर्यावरण अध्ययन की नींव',
       'next.class': 'आगे: कक्षा {n}', 'next.mock': 'आगे: NEET मॉक टेस्ट', 'qcount': '{n} प्रश्न', 'unit': 'NEET इकाई {n}: ',
@@ -87,7 +88,8 @@
       'q.english': 'प्रश्न अंग्रेज़ी में हैं।', 'type.ar': 'अभिकथन-कारण', 'type.match': 'सूची मिलान', 'type.multi': 'कथन',
       'sum.all': 'सब सही! समय के दबाव में जाँचने के लिए NEET मॉक दें।', 'sum.good': 'बढ़िया। छूटे प्रश्न ठीक करने के लिए फिर अभ्यास करें।',
       'sum.low': 'व्याख्याएँ और दोहराव नोट्स पढ़ें, फिर अभ्यास करें; गलत प्रश्न पहले आएँगे।', 'sum.more': '10 और अभ्यास करें',
-      'sum.formats': 'NEET-प्रारूप अभ्यास',
+      'sum.formats': 'NEET-प्रारूप अभ्यास', 'sum.hy': 'अति-महत्वपूर्ण अभ्यास', 'q.hy': 'NEET का अति-महत्वपूर्ण विषय',
+      'meta.hy': '{n} अति-महत्वपूर्ण', 'notes.hy': 'अति-महत्वपूर्ण प्रश्नों का अभ्यास',
       'mock.eyebrow': 'NEET-UG पैटर्न', 'mock.h1': 'मॉक टेस्ट',
       'mock.lead': 'प्रश्न कक्षा 11 और 12 के हर NEET अध्याय से, बराबर फैले हुए, अभिकथन-कारण, सूची मिलान और कथन प्रश्नों सहित। अंकन NEET जैसा: सही +4, गलत -1, खाली 0। आपका टेस्ट साथ-साथ सहेजा जाता है।',
       'mode.weekly': 'मॉक डे पेपर', 'mode.full': 'पूर्ण NEET मॉक', 'mode.half': 'आधा मॉक', 'mode.quick': 'त्वरित टेस्ट',
@@ -121,7 +123,7 @@
       'loading': 'প্রশ্ন হাব লোড হচ্ছে...', 'loadingQ': 'প্রশ্ন লোড হচ্ছে...', 'loadFail': 'প্রশ্নের ডেটা লোড হয়নি। ইন্টারনেট দেখে আবার লোড করো।',
       'sub.Physics': 'পদার্থবিদ্যা', 'sub.Chemistry': 'রসায়ন', 'sub.Biology': 'জীববিদ্যা', 'sub.Botany': 'উদ্ভিদবিদ্যা', 'sub.Zoology': 'প্রাণীবিদ্যা',
       'path.eyebrow': 'জীববিদ্যা · রসায়ন · পদার্থবিদ্যা', 'path.h1': 'শ্রেণি 1 থেকে NEET পরীক্ষা হল পর্যন্ত',
-      'path.lead': 'শ্রেণি ও অধ্যায় অনুযায়ী {total}টি প্রশ্ন, উত্তর ও ব্যাখ্যাসহ। শ্রেণি 1-10 ভিত গড়ে; শ্রেণি 11-12-র অধ্যায় NCERT বই ও সরকারি NEET-UG ইউনিট অনুসরণ করে ({neet}টি প্রশ্ন, বিবৃতি-কারণ, তালিকা মেলানো ও একাধিক বিবৃতির প্রশ্নসহ)। অধ্যায় ঝালিয়ে নাও, অনুশীলন করো, তারপর সাপ্তাহিক NEET মক দাও।',
+      'path.lead': 'শ্রেণি ও অধ্যায় অনুযায়ী {total}টি প্রশ্ন, উত্তর ও ব্যাখ্যাসহ। শ্রেণি 1-10 ভিত গড়ে; শ্রেণি 11-12-র অধ্যায় NCERT বই ও সরকারি NEET-UG ইউনিট অনুসরণ করে ({neet}টি প্রশ্ন, বিবৃতি-কারণ, তালিকা মেলানো ও একাধিক বিবৃতির প্রশ্নসহ, আর NEET-এ বারবার আসা বিষয়ের গুরুত্বপূর্ণ প্রশ্নসহ)। অধ্যায় ঝালিয়ে নাও, অনুশীলন করো, তারপর সাপ্তাহিক NEET মক দাও।',
       'rung.class': 'শ্রেণি', 'rung.exam': 'পরীক্ষা', 'rung.mock': 'মক',
       'cls.neet': 'NEET পাঠ্যক্রম', 'cls.sci': 'বিজ্ঞানের ভিত', 'cls.evs': 'পরিবেশ পরিচিতির ভিত',
       'next.class': 'পরের: শ্রেণি {n}', 'next.mock': 'পরের: NEET মক টেস্ট', 'qcount': '{n}টি প্রশ্ন', 'unit': 'NEET ইউনিট {n}: ',
@@ -134,7 +136,8 @@
       'q.english': 'প্রশ্নগুলো ইংরেজিতে।', 'type.ar': 'বিবৃতি-কারণ', 'type.match': 'তালিকা মেলানো', 'type.multi': 'বিবৃতি',
       'sum.all': 'সব ঠিক! সময়ের চাপে যাচাই করতে NEET মক দাও।', 'sum.good': 'দারুণ। ভুলগুলো ঠিক করতে আবার অনুশীলন করো।',
       'sum.low': 'ব্যাখ্যা ও ঝালাই নোট পড়ো, তারপর আবার অনুশীলন করো; ভুল প্রশ্নগুলো আগে আসবে।', 'sum.more': 'আরও 10টি অনুশীলন',
-      'sum.formats': 'NEET-ধরনের অনুশীলন',
+      'sum.formats': 'NEET-ধরনের অনুশীলন', 'sum.hy': 'সবচেয়ে গুরুত্বপূর্ণ অনুশীলন', 'q.hy': 'NEET-এর সবচেয়ে গুরুত্বপূর্ণ বিষয়',
+      'meta.hy': '{n} গুরুত্বপূর্ণ', 'notes.hy': 'গুরুত্বপূর্ণ প্রশ্ন অনুশীলন',
       'mock.eyebrow': 'NEET-UG ধাঁচ', 'mock.h1': 'মক টেস্ট',
       'mock.lead': 'প্রশ্ন আসে শ্রেণি 11 ও 12-র প্রতিটি NEET অধ্যায় থেকে, সমানভাবে ছড়ানো, বিবৃতি-কারণ, তালিকা মেলানো ও বিবৃতির প্রশ্নসহ। নম্বর NEET-এর মতো: সঠিক +4, ভুল -1, ফাঁকা 0। টেস্ট চলতে চলতেই সংরক্ষিত হয়।',
       'mode.weekly': 'মক ডে পেপার', 'mode.full': 'পূর্ণ NEET মক', 'mode.half': 'অর্ধেক মক', 'mode.quick': 'দ্রুত টেস্ট',
@@ -280,8 +283,9 @@
     document.querySelectorAll('[data-nav]').forEach((a) => a.classList.toggle('on', h.startsWith(a.dataset.nav) || (a.dataset.nav === 'path' && /^(class|practice|notes)/.test(h))));
     if (h.startsWith('class-')) { store.set('nh-class', Number(h.slice(6))); return viewPath(); }
     if (h.startsWith('notes-')) return viewNotes(h.slice(6));
-    if (h.startsWith('practicex-')) return viewPractice(h.slice(10), true);
-    if (h.startsWith('practice-')) return viewPractice(h.slice(9), false);
+    if (h.startsWith('practicex-')) return viewPractice(h.slice(10), 'x');
+    if (h.startsWith('practiceh-')) return viewPractice(h.slice(10), 'h');
+    if (h.startsWith('practice-')) return viewPractice(h.slice(9), '');
     if (h === 'mock') return viewMock();
     if (h === 'progress') return viewProgress();
     return viewPath();
@@ -317,7 +321,7 @@
         return `${unit}<div class="ch">
           <div class="ch-title">${esc(chTitle(c))} ${c.neet || cls < 11 ? '' : `<span class="tag-beyond">${esc(t('beyond'))}</span>`}</div>
           <div class="ch-btns">${c.notes ? `<a class="btn small" href="#notes-${c.id}">${esc(t('revise'))}</a>` : ''}<a class="btn small" href="#practice-${c.id}">${esc(t('practise'))}</a></div>
-          <div class="ch-meta"><span class="num">${esc(t('meta.q', { n: c.count }))}</span><span class="num">${esc(t('meta.done', { n: a.seen }))}</span>${a.tries ? `<span class="num">${esc(t('meta.correct', { n: pct(a.correct, a.tries) }))}</span>` : ''}${nfmt ? `<a class="fmt" href="#practicex-${c.id}">${esc(t('meta.fmt', { n: nfmt }))}</a>` : ''}${c.ecos ? `<a class="ecos" href="${ECOS_URL}" target="_blank" rel="noopener">${esc(t('ecos'))}</a>` : ''}</div>
+          <div class="ch-meta"><span class="num">${esc(t('meta.q', { n: c.count }))}</span><span class="num">${esc(t('meta.done', { n: a.seen }))}</span>${a.tries ? `<span class="num">${esc(t('meta.correct', { n: pct(a.correct, a.tries) }))}</span>` : ''}${nfmt ? `<a class="fmt" href="#practicex-${c.id}">${esc(t('meta.fmt', { n: nfmt }))}</a>` : ''}${c.hy ? `<a class="fmt" href="#practiceh-${c.id}">${esc(t('meta.hy', { n: c.hy }))}</a>` : ''}${c.ecos ? `<a class="ecos" href="${ECOS_URL}" target="_blank" rel="noopener">${esc(t('ecos'))}</a>` : ''}</div>
           <div class="prog"><i style="width:${pct(a.seen, c.count)}%"></i></div>
         </div>`;
       }).join('');
@@ -350,18 +354,20 @@
       <div class="qcard notes" style="--c:${SUBJ[c.subject]}">
         <p class="note">${esc(t('notes.lead'))}</p>
         ${pts.length ? `<ol class="points">${pts.map((p) => `<li>${esc(p)}</li>`).join('')}</ol>` : `<p>${esc(t('notes.none'))}</p>`}
-        <div class="row" style="margin-top:14px"><a class="btn primary" href="#practice-${c.id}">${esc(t('notes.practise'))}</a>${nfmt ? `<a class="btn" href="#practicex-${c.id}">${esc(t('notes.formats'))}</a>` : ''}</div>
+        <div class="row" style="margin-top:14px"><a class="btn primary" href="#practice-${c.id}">${esc(t('notes.practise'))}</a>${nfmt ? `<a class="btn" href="#practicex-${c.id}">${esc(t('notes.formats'))}</a>` : ''}${c.hy ? `<a class="btn" href="#practiceh-${c.id}">${esc(t('notes.hy'))}</a>` : ''}</div>
         ${discLine()}
       </div></div>`;
   }
 
   // ---------------------------------------------------------------- practice
+  // formats: '' = all questions, 'x' = NEET formats only, 'h' = high-yield NEET topics only
   async function viewPractice(cid, formats) {
     const c = CH[cid];
     if (!c) { location.hash = 'path'; return; }
     if (!session || session.cid !== cid || session.formats !== formats || session.done) {
       app.innerHTML = `<p class="loading">${esc(t('loadingQ'))}</p>`;
-      const all = (await loadClass(c.cls)).filter((q) => q[1] === cid && (!formats || (q[8] && q[8] !== 'mcq')));
+      const all = (await loadClass(c.cls)).filter((q) => q[1] === cid
+        && (formats === 'x' ? q[8] && q[8] !== 'mcq' : formats === 'h' ? q[7] === 2 : true));
       const unseen = shuffle(all.filter((q) => !stats[q[0]]));
       const wrong = shuffle(all.filter((q) => stats[q[0]] && stats[q[0]][1] < stats[q[0]][0]));
       const rest = shuffle(all.filter((q) => stats[q[0]] && stats[q[0]][1] === stats[q[0]][0]));
@@ -378,7 +384,7 @@
       s.done = true;
       const right = s.picks.filter((p, k) => p === s.qs[k][5]).length;
       app.innerHTML = `<div class="qwrap"><div class="qcard summary" style="--c:${SUBJ[c.subject]}">
-        <p class="eyebrow">${esc(sub(c.subject))} · ${esc(t('rung.class'))} ${c.cls}${s.formats ? ` · ${esc(t('sum.formats'))}` : ''}</p><h2>${esc(chTitle(c))}</h2>
+        <p class="eyebrow">${esc(sub(c.subject))} · ${esc(t('rung.class'))} ${c.cls}${s.formats ? ` · ${esc(t(s.formats === 'h' ? 'sum.hy' : 'sum.formats'))}` : ''}</p><h2>${esc(chTitle(c))}</h2>
         <div class="big num">${right}/${s.qs.length}</div>
         <p class="lead" style="margin:10px auto">${esc(t(right === s.qs.length ? 'sum.all' : right >= s.qs.length * 0.7 ? 'sum.good' : 'sum.low'))}</p>
         <div class="row" style="justify-content:center"><button class="btn primary" id="again">${esc(t('sum.more'))}</button>${c.notes ? `<a class="btn" href="#notes-${c.id}">${esc(t('revise'))}</a>` : ''}${back}</div></div></div>`;
@@ -401,7 +407,7 @@
           return `<button class="opt ${cls}" data-k="${k}" ${answered ? 'disabled' : ''} lang="en"><span class="l">${'ABCD'[k]}</span><span>${esc(o)}</span></button>`;
         }).join('')}</div>
         ${answered ? `<div class="explain ${picked === q[5] ? '' : 'bad'}"><b>${picked === q[5] ? esc(t('q.correct')) : esc(t('q.answer', { a: `${'ABCD'[q[5]]}. ${q[4][q[5]]}` }))}</b><span lang="en">${esc(q[6])}</span></div>${discLine()}` : ''}
-        <p class="src">${esc(t(q[7] ? 'q.bank' : 'q.hub'))} · ${esc(t('q.diff', { d: t('d.' + q[2]) }))} · ${reportLink(q)}</p>
+        <p class="src">${esc(t(q[7] === 2 ? 'q.hy' : q[7] ? 'q.bank' : 'q.hub'))} · ${esc(t('q.diff', { d: t('d.' + q[2]) }))} · ${reportLink(q)}</p>
         <div class="qfoot"><span></span>${answered ? `<button class="btn primary" id="next">${esc(t(s.i + 1 < s.qs.length ? 'q.next' : 'q.score'))}</button>` : ''}</div>
       </div></div>`;
     app.querySelectorAll('.opt').forEach((b) => {

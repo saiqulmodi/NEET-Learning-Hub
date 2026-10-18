@@ -9,11 +9,16 @@ import math
 import re
 
 REGISTRY = []
+_TAG = [None]   # set by tag(); "hy" marks high-yield NEET-topic content (hub/gen_hy_*.py)
+
+
+def tag(name):
+    _TAG[0] = name
 
 
 def gen(chapter, weight=1, difficulty=None):
     def deco(fn):
-        REGISTRY.append(dict(chapter=chapter, weight=weight, difficulty=difficulty, fn=fn))
+        REGISTRY.append(dict(chapter=chapter, weight=weight, difficulty=difficulty, fn=fn, tag=_TAG[0]))
         return fn
     return deco
 
@@ -171,7 +176,7 @@ NEW_TYPES = []  # generators of the NEET question types (kind = "match" | "multi
 def table(chapter, rows, stem, reverse_stem=None, weight=1, expl=None):
     """Register a fact table as a generator for ``chapter``."""
     gen(chapter, weight)(lambda rng: relation(rng, rows, stem, reverse_stem, expl))
-    TABLES.append((chapter, rows))
+    TABLES.append((chapter, rows, _TAG[0]))
 
 
 def groups(chapter, grp, label_not, label_is=None, weight=1):
@@ -179,8 +184,11 @@ def groups(chapter, grp, label_not, label_is=None, weight=1):
 
 
 def facts(chapter, true_facts, false_facts, topic, weight=1):
-    gen(chapter, weight)(lambda rng: statements(rng, true_facts, false_facts, topic))
-    FACTS.append((chapter, true_facts, false_facts, topic))
+    # High-yield topics are written in lower case for "statements about {topic}"; start the stand-alone stem with a capital
+    # (but keep names like "p-block" and "d- and f-block" as they are).
+    stem = topic[:1].upper() + topic[1:] if _TAG[0] and topic[1:2] != "-" else topic
+    gen(chapter, weight)(lambda rng: statements(rng, true_facts, false_facts, stem))
+    FACTS.append((chapter, true_facts, false_facts, topic, _TAG[0]))
 
 
 # ---------------------------------------------------------------- NEET question types
@@ -276,18 +284,18 @@ def assertion(chapter, a, r, explains, why=""):
     def fn(rng):
         return Q(f"Assertion (A): {a}.\nReason (R): {r}.", ans, [o for o in AR_OPTIONS if o != ans],
                  why or ("R correctly explains A." if explains else "Both are true, but R does not explain A."), difficulty="Hard")
-    NEW_TYPES.append(dict(chapter=chapter, kind="ar", weight=1, fn=fn))
+    NEW_TYPES.append(dict(chapter=chapter, kind="ar", weight=1, fn=fn, tag=_TAG[0]))
 
 
 def register_new_types():
     """Turn every stored table and fact list into NEET-type generators (call after all content modules load)."""
-    for ch, rows in TABLES:
+    for ch, rows, tg in TABLES:
         if len(rows) >= 4:
-            NEW_TYPES.append(dict(chapter=ch, kind="match", weight=2, fn=lambda rng, rows=rows: match_list(rng, rows)))
-    for ch, tf, ff, topic in FACTS:
-        NEW_TYPES.append(dict(chapter=ch, kind="multi", weight=2, fn=lambda rng, tf=tf, ff=ff, topic=topic: multi_count(rng, tf, ff, topic)))
-        NEW_TYPES.append(dict(chapter=ch, kind="multi", weight=1, fn=lambda rng, tf=tf, ff=ff, topic=topic: multi_which(rng, tf, ff, topic)))
-        NEW_TYPES.append(dict(chapter=ch, kind="ar", weight=1, fn=lambda rng, tf=tf, ff=ff: ar_auto(rng, tf, ff)))
+            NEW_TYPES.append(dict(chapter=ch, kind="match", weight=2, tag=tg, fn=lambda rng, rows=rows: match_list(rng, rows)))
+    for ch, tf, ff, topic, tg in FACTS:
+        NEW_TYPES.append(dict(chapter=ch, kind="multi", weight=2, tag=tg, fn=lambda rng, tf=tf, ff=ff, topic=topic: multi_count(rng, tf, ff, topic)))
+        NEW_TYPES.append(dict(chapter=ch, kind="multi", weight=1, tag=tg, fn=lambda rng, tf=tf, ff=ff, topic=topic: multi_which(rng, tf, ff, topic)))
+        NEW_TYPES.append(dict(chapter=ch, kind="ar", weight=1, tag=tg, fn=lambda rng, tf=tf, ff=ff: ar_auto(rng, tf, ff)))
 
 
 def statements(rng, true_facts, false_facts, topic):

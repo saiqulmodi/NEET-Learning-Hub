@@ -11,9 +11,16 @@ as a path that ends at NEET-UG, the entrance exam for MBBS in India, plus a free
 |---|---|
 | Class 1-5 (EVS science strands) | about 1,700 |
 | Class 6-10 (Physics, Chemistry, Biology foundation) | about 4,500 |
-| Class 11-12 NEET syllabus chapters | 8,830 (Physics 2,912, Chemistry 2,162, Biology 3,756) |
+| Class 11-12 NEET syllabus chapters | 16,147 (Physics 6,091, Chemistry 3,870, Biology 6,186) |
 | Class 11-12 chapters removed from NEET (kept for school) | about 150 |
-| **Total** | **15,136**, of which 2,352 are NEET formats (978 match-the-list, 992 multi-statement, 382 assertion-reason) |
+| **Total** | **22,453**, of which 2,352 are NEET formats (978 match-the-list, 992 multi-statement, 382 assertion-reason) and 7,317 are high-yield NEET topics |
+
+* **High-yield NEET topics** (`hub/gen_hy_*.py`, source "NEET high-yield topics"): 7,317 original questions on the
+  problem types and facts that NEET (and AIPMT before it) has asked again and again over the last 20 years, such as
+  projectile, Atwood machine, Carnot, YDSE, photoelectric and decay numericals; Ksp, pH, colligative, Nernst-type and
+  half-life calculations; named reactions; hybridisation; taxonomy, physiology values, genetics ratios and
+  Hardy-Weinberg. They are **not** copies of past papers: the questions are written fresh on those topics, numerical
+  answers are computed, and facts follow NCERT. They are added after all earlier questions, so existing ids do not change.
 
 * **NEET question formats** (`hub/core.py`, `hub/gen_ar.py`): match List I with List II, "how many statements are
   correct" / "which statements are correct", and assertion-reason (curated pairs plus pairs built from checked
@@ -39,7 +46,7 @@ as a path that ends at NEET-UG, the entrance exam for MBBS in India, plus a free
 * **Weekly Mock Day**: one full-length paper per week (seeded by the ISO week, so everyone gets the same paper),
   a weekly streak, and a line chart of full-length mock scores over time.
 * **Revise**: the revision notes for each chapter, then straight into practice; "NEET formats" practises only
-  match, statement and assertion-reason questions.
+  match, statement and assertion-reason questions; "high-yield" practises only the high-yield NEET-topic questions.
 * **Languages**: the site is in English, Hindi and Bengali (picker in the top bar). Question texts stay in English.
 * **Disclaimer and reporting**: "Answers are AI-generated. Please confirm them with your mentor or teacher." appears
   under every explanation, at the top of the Path page and in the footer. Every question has a "Report a problem"

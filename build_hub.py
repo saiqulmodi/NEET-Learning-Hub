@@ -19,6 +19,7 @@ from collections import Counter, defaultdict
 
 from hub.core import REGISTRY, NEW_TYPES, AR_OPTIONS, register_new_types
 from hub import gen_bio11, gen_bio12, gen_phys, gen_chem, gen_extra, gen_ar  # noqa: F401  (register generators)
+from hub import gen_hy_bio11, gen_hy_bio12, gen_hy_chem, gen_hy_phys  # noqa: F401  (high-yield NEET topics, tagged "hy")
 from hub.syllabus import CHAPTERS, NEET_UNITS, chapter_for_bank
 from hub.notes import NOTES
 from hub.notes_hi import NOTES_HI
@@ -35,6 +36,10 @@ SEED = 20261018
 NEW_PER_CHAPTER = {"Biology": 80, "Chemistry": 60, "Physics": 60}
 # Assertion-reason, match-the-list and multi-statement questions per chapter (NEET's newer formats).
 NEW_TYPES_PER_CHAPTER = {"Biology": 36, "Chemistry": 24, "Physics": 24}
+# High-yield NEET topics (hub/gen_hy_*.py): original questions on what NEET/AIPMT papers ask again and again.
+HY_SOURCE = "NEET high-yield topics"
+HY_PER_CHAPTER = {"Biology": 140, "Chemistry": 160, "Physics": 200}
+HY_TYPES_PER_CHAPTER = {"Biology": 30, "Chemistry": 20, "Physics": 16}
 MAX_FAILS = 120
 
 
@@ -63,7 +68,7 @@ def import_bank(seen):
     return rows, skipped
 
 
-def generate(seen, rng, registry, quotas):
+def generate(seen, rng, registry, quotas, source="NEET Hub generator"):
     rows = []
     shortfalls = []
     by_ch = defaultdict(list)
@@ -99,7 +104,7 @@ def generate(seen, rng, registry, quotas):
                 rng.shuffle(opts)
             rows.append(dict(chapter_id=cid, difficulty=q.get("difficulty") or g.get("difficulty") or "Medium",
                              question=q["question"], opts=opts, correct=opts.index(q["answer"]), qtype=kind,
-                             explanation=q["explanation"], source="NEET Hub generator", bank_id=None))
+                             explanation=q["explanation"], source=source, bank_id=None))
             made += 1
         if made < quota:
             shortfalls.append((cid, made, quota))
@@ -122,7 +127,7 @@ def write(rows):
     os.makedirs(OUT, exist_ok=True)
     os.makedirs(WEB, exist_ok=True)
     order = {cid: i for i, cid in enumerate(CHAPTERS)}
-    rows.sort(key=lambda r: (CHAPTERS[r["chapter_id"]]["cls"], order[r["chapter_id"]], r["source"] != "School MCQ Bank"))
+    rows.sort(key=lambda r: (r["source"] == HY_SOURCE, CHAPTERS[r["chapter_id"]]["cls"], order[r["chapter_id"]], r["source"] != "School MCQ Bank"))
     for i, r in enumerate(rows, 1):
         r["id"] = i
 
@@ -160,6 +165,7 @@ def write(rows):
                         *r["opts"], "ABCD"[r["correct"]], r["explanation"], r["source"], r["qtype"]])
 
     counts = Counter(r["chapter_id"] for r in rows)
+    hy_counts = Counter(r["chapter_id"] for r in rows if r["source"] == HY_SOURCE)
     types = defaultdict(Counter)
     for r in rows:
         types[r["chapter_id"]][r["qtype"]] += 1
@@ -176,7 +182,7 @@ def write(rows):
         t, ut = names(c)
         chapters.append(dict(id=c["id"], cls=c["cls"], subject=c["subject"], branch=c["branch"], unit=c["unit"], unitTitle=c["unit_title"],
                              title=c["title"], t=t, ut=ut, neet=c["neet"], ecos=c["ecos"], count=counts[c["id"]],
-                             types=dict(types[c["id"]]), notes=c["id"] in NOTES))
+                             types=dict(types[c["id"]]), hy=hy_counts[c["id"]], notes=c["id"] in NOTES))
     index = dict(units=NEET_UNITS, chapters=chapters)
     with open(os.path.join(WEB, "notes.json"), "w", encoding="utf-8") as f:
         json.dump({cid: {"en": NOTES[cid], "hi": NOTES_HI.get(cid, []), "bn": NOTES_BN.get(cid, [])} for cid in NOTES},
@@ -187,7 +193,7 @@ def write(rows):
     for r in rows:
         by_cls[CHAPTERS[r["chapter_id"]]["cls"]].append(
             [r["id"], r["chapter_id"], r["difficulty"][0], r["question"], r["opts"], r["correct"], r["explanation"],
-             1 if r["source"] == "School MCQ Bank" else 0, r["qtype"]])
+             1 if r["source"] == "School MCQ Bank" else 2 if r["source"] == HY_SOURCE else 0, r["qtype"]])
     for cls, qs in by_cls.items():
         with open(os.path.join(WEB, f"c{cls:02d}.json"), "w", encoding="utf-8") as f:
             json.dump(qs, f, ensure_ascii=False, separators=(",", ":"))
@@ -198,13 +204,21 @@ def main():
     rng = random.Random(SEED)
     seen = set()
     bank_rows, skipped = import_bank(seen)
-    new_rows, shortfalls = generate(seen, rng, REGISTRY, NEW_PER_CHAPTER)
-    type_rows, _ = generate(seen, rng, NEW_TYPES, NEW_TYPES_PER_CHAPTER)
-    rows = bank_rows + new_rows + type_rows
+    base = lambda reg: [g for g in reg if not g.get("tag")]
+    high = lambda reg: [g for g in reg if g.get("tag") == "hy"]
+    new_rows, shortfalls = generate(seen, rng, base(REGISTRY), NEW_PER_CHAPTER)
+    type_rows, _ = generate(seen, rng, base(NEW_TYPES), NEW_TYPES_PER_CHAPTER)
+    # High-yield content comes last so the ids of all earlier questions (and students' saved progress) stay the same.
+    hy_rows, _ = generate(seen, rng, high(REGISTRY), HY_PER_CHAPTER, HY_SOURCE)
+    hy_type_rows, _ = generate(seen, rng, high(NEW_TYPES), HY_TYPES_PER_CHAPTER, HY_SOURCE)
+    rows = bank_rows + new_rows + type_rows + hy_rows + hy_type_rows
     problems = validate(rows)
     print(f"From School MCQ Bank: {len(bank_rows)} (left out as non-science: {sum(skipped.values())})")
     print(f"New NEET questions:   {len(new_rows)}")
     print(f"NEET-format questions: {len(type_rows)}  " + ", ".join(f"{k} {n}" for k, n in Counter(r['qtype'] for r in type_rows).items()))
+    print(f"High-yield NEET topics: {len(hy_rows) + len(hy_type_rows)}  " +
+          ", ".join(f"{s} {sum(1 for r in hy_rows + hy_type_rows if CHAPTERS[r['chapter_id']]['subject'] == s)}" for s in ("Physics", "Chemistry", "Biology")) +
+          "  (formats: " + ", ".join(f"{k} {n}" for k, n in Counter(r['qtype'] for r in hy_rows + hy_type_rows).items()) + ")")
     print(f"Total:                {len(rows)}")
     by = Counter((CHAPTERS[r['chapter_id']]['cls'], CHAPTERS[r['chapter_id']]['subject']) for r in rows)
     for cls in range(1, 13):
