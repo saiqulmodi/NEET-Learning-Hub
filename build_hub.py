@@ -20,6 +20,7 @@ from collections import Counter, defaultdict
 from hub.core import REGISTRY, NEW_TYPES, AR_OPTIONS, register_new_types
 from hub import gen_bio11, gen_bio12, gen_phys, gen_chem, gen_extra, gen_ar  # noqa: F401  (register generators)
 from hub import gen_hy_bio11, gen_hy_bio12, gen_hy_chem, gen_hy_phys  # noqa: F401  (high-yield NEET topics, tagged "hy")
+from hub import gen_hy2_bio, gen_hy2_chem, gen_hy2_phys  # noqa: F401  (second high-yield batch, tagged "hy2")
 from hub.syllabus import CHAPTERS, NEET_UNITS, chapter_for_bank
 from hub.notes import NOTES
 from hub.notes_hi import NOTES_HI
@@ -68,7 +69,7 @@ def import_bank(seen):
     return rows, skipped
 
 
-def generate(seen, rng, registry, quotas, source="NEET Hub generator"):
+def generate(seen, rng, registry, quotas, source="NEET Hub generator", batch=0):
     rows = []
     shortfalls = []
     by_ch = defaultdict(list)
@@ -104,7 +105,7 @@ def generate(seen, rng, registry, quotas, source="NEET Hub generator"):
                 rng.shuffle(opts)
             rows.append(dict(chapter_id=cid, difficulty=q.get("difficulty") or g.get("difficulty") or "Medium",
                              question=q["question"], opts=opts, correct=opts.index(q["answer"]), qtype=kind,
-                             explanation=q["explanation"], source=source, bank_id=None))
+                             explanation=q["explanation"], source=source, bank_id=None, batch=batch))
             made += 1
         if made < quota:
             shortfalls.append((cid, made, quota))
@@ -127,7 +128,8 @@ def write(rows):
     os.makedirs(OUT, exist_ok=True)
     os.makedirs(WEB, exist_ok=True)
     order = {cid: i for i, cid in enumerate(CHAPTERS)}
-    rows.sort(key=lambda r: (r["source"] == HY_SOURCE, CHAPTERS[r["chapter_id"]]["cls"], order[r["chapter_id"]], r["source"] != "School MCQ Bank"))
+    # Each later batch is numbered after the earlier ones, so adding content never shifts existing ids.
+    rows.sort(key=lambda r: (r.get("batch", 0), CHAPTERS[r["chapter_id"]]["cls"], order[r["chapter_id"]], r["source"] != "School MCQ Bank"))
     for i, r in enumerate(rows, 1):
         r["id"] = i
 
@@ -209,8 +211,14 @@ def main():
     new_rows, shortfalls = generate(seen, rng, base(REGISTRY), NEW_PER_CHAPTER)
     type_rows, _ = generate(seen, rng, base(NEW_TYPES), NEW_TYPES_PER_CHAPTER)
     # High-yield content comes last so the ids of all earlier questions (and students' saved progress) stay the same.
-    hy_rows, _ = generate(seen, rng, high(REGISTRY), HY_PER_CHAPTER, HY_SOURCE)
-    hy_type_rows, _ = generate(seen, rng, high(NEW_TYPES), HY_TYPES_PER_CHAPTER, HY_SOURCE)
+    hy_rows, _ = generate(seen, rng, high(REGISTRY), HY_PER_CHAPTER, HY_SOURCE, batch=1)
+    hy_type_rows, _ = generate(seen, rng, high(NEW_TYPES), HY_TYPES_PER_CHAPTER, HY_SOURCE, batch=1)
+    # Second high-yield batch (hub/gen_hy2_*.py, tag "hy2"), generated after the first so its ids come last.
+    high2 = lambda reg: [g for g in reg if g.get("tag") == "hy2"]
+    hy2_rows, _ = generate(seen, rng, high2(REGISTRY), HY_PER_CHAPTER, HY_SOURCE, batch=2)
+    hy2_type_rows, _ = generate(seen, rng, high2(NEW_TYPES), HY_TYPES_PER_CHAPTER, HY_SOURCE, batch=2)
+    hy_rows += hy2_rows
+    hy_type_rows += hy2_type_rows
     rows = bank_rows + new_rows + type_rows + hy_rows + hy_type_rows
     problems = validate(rows)
     print(f"From School MCQ Bank: {len(bank_rows)} (left out as non-science: {sum(skipped.values())})")
