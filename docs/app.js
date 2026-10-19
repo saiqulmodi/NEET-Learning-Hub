@@ -5,6 +5,31 @@
   const $ = (s, el = document) => el.querySelector(s);
   const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const shuffle = (a, rnd = Math.random) => { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  // Random order that keeps look-alike questions apart: two questions look alike when they start with the
+  // same five words or share half their words (numbers ignored). Each pick avoids the last `win` picked.
+  const sigOf = (text) => { const w = String(text).toLowerCase().match(/[a-z]+/g) || []; return { set: new Set(w), head: w.slice(0, 5).join(' ') }; };
+  const alike = (a, b) => {
+    if (a.head && a.head === b.head) return true;
+    let both = 0;
+    for (const x of a.set) if (b.set.has(x)) both++;
+    const all = a.set.size + b.set.size - both;
+    return all ? both / all >= 0.5 : false;
+  };
+  function spreadOrder(items, text, rnd = Math.random, limit = Infinity, avoid = [], win = 6) {
+    const rest = shuffle(items, rnd).map((it) => ({ it, s: sigOf(text(it)) }));
+    const out = [];
+    const recent = avoid.map((t) => sigOf(t));
+    while (rest.length && out.length < limit) {
+      const last = recent.slice(-win);
+      let k = rest.slice(0, 400).findIndex((r) => !last.some((l) => alike(r.s, l)));
+      if (k < 0) k = 0;
+      const [r] = rest.splice(k, 1);
+      out.push(r.it);
+      recent.push(r.s);
+    }
+    return out;
+  }
+  const qText = (q) => q[3];
   const SUBJ = { Physics: 'var(--phy)', Chemistry: 'var(--che)', Biology: 'var(--bio)' };
   const SECTIONS = [
     { key: 'Physics', test: (c) => c.subject === 'Physics', c: 'var(--phy)' },
@@ -185,6 +210,7 @@
   const BYID = {};
   let stats = store.get('nh-stats', {});
   let session = null;
+  let lastShown = [];   // texts of the last questions of the previous practice set (kept apart from the next set)
   let mock = store.get('nh-mock-live', null);
   let timerId = null;
   const app = $('#app');
@@ -368,10 +394,20 @@
       app.innerHTML = `<p class="loading">${esc(t('loadingQ'))}</p>`;
       const all = (await loadClass(c.cls)).filter((q) => q[1] === cid
         && (formats === 'x' ? q[8] && q[8] !== 'mcq' : formats === 'h' ? q[7] === 2 : true));
-      const unseen = shuffle(all.filter((q) => !stats[q[0]]));
-      const wrong = shuffle(all.filter((q) => stats[q[0]] && stats[q[0]][1] < stats[q[0]][0]));
-      const rest = shuffle(all.filter((q) => stats[q[0]] && stats[q[0]][1] === stats[q[0]][0]));
-      session = { cid, formats, qs: [...unseen, ...wrong, ...rest].slice(0, 10), i: 0, picks: [], done: false };
+      // Unseen first, then missed, then the rest; within and across these groups look-alikes are kept apart,
+      // also from the last questions of the previous set.
+      const groups = [
+        all.filter((q) => !stats[q[0]]),
+        all.filter((q) => stats[q[0]] && stats[q[0]][1] < stats[q[0]][0]),
+        all.filter((q) => stats[q[0]] && stats[q[0]][1] === stats[q[0]][0]),
+      ];
+      const qs = [];
+      for (const g of groups) {
+        if (qs.length >= 10) break;
+        qs.push(...spreadOrder(g, qText, Math.random, 10 - qs.length, [...lastShown, ...qs.map(qText)]));
+      }
+      session = { cid, formats, qs, i: 0, picks: [], done: false };
+      lastShown = qs.slice(-6).map(qText);
     }
     renderPractice();
   }
@@ -521,11 +557,13 @@
       const byCh = {};
       for (const q of pool) if (sec.test(CH[q[1]])) (byCh[q[1]] = byCh[q[1]] || []).push(q);
       const keys = Object.keys(byCh).sort();
-      const lists = shuffle(keys.map((k) => byCh[k]), rnd).map((l) => shuffle(l, rnd));
+      // Each chapter's list starts with mutually different questions, so a paper never holds two look-alikes
+      // from one chapter; the section is then ordered so look-alikes never sit next to each other.
+      const lists = shuffle(keys, rnd).map((k) => spreadOrder(byCh[k], qText, rnd, 8).reverse());
       const picked = [];
-      while (picked.length < per && lists.some((l) => l.length)) for (const l of lists) { if (l.length && picked.length < per) picked.push(l.pop()[0]); }
+      while (picked.length < per && lists.some((l) => l.length)) for (const l of lists) { if (l.length && picked.length < per) picked.push(l.pop()); }
       sections.push({ key: sec.key, start: ids.length, n: picked.length });
-      ids.push(...shuffle(picked, rnd));
+      ids.push(...spreadOrder(picked, qText, rnd).map((q) => q[0]));
     }
     mock = { mode, week: mode === 'weekly' ? weekKey() : null, ids, sections, answers: {}, review: {}, cur: 0, start: Date.now(), mins: MODES[mode].mins, done: false };
     store.set('nh-mock-live', mock);
