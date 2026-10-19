@@ -11,11 +11,11 @@ as a path that ends at NEET-UG, the entrance exam for MBBS in India, plus a free
 |---|---|
 | Class 1-5 (EVS science strands) | about 1,700 |
 | Class 6-10 (Physics, Chemistry, Biology foundation) | about 4,500 |
-| Class 11-12 NEET syllabus chapters | 19,459 (Physics 7,156, Chemistry 4,781, Biology 7,522) |
+| Class 11-12 NEET syllabus chapters | 22,790 (Physics 8,152, Chemistry 5,654, Biology 8,984) |
 | Class 11-12 chapters removed from NEET (kept for school) | about 150 |
-| **Total** | **25,765**, of which 2,352 are NEET formats (978 match-the-list, 992 multi-statement, 382 assertion-reason) and 10,629 are high-yield NEET topics |
+| **Total** | **29,096**, of which 2,352 are NEET formats (978 match-the-list, 992 multi-statement, 382 assertion-reason) and 13,960 are high-yield NEET topics |
 
-* **High-yield NEET topics** (`hub/gen_hy_*.py` and the second batch `hub/gen_hy2_*.py`, source "NEET high-yield topics"): 10,629 original questions on the
+* **High-yield NEET topics** (`hub/gen_hy_*.py` and the later batches `hub/gen_hy2_*.py`, `hub/gen_hy3_*.py`, source "NEET high-yield topics"): 13,960 original questions on the
   problem types and facts that NEET (and AIPMT before it) has asked again and again over the last 20 years, such as
   projectile, Atwood machine, Carnot, YDSE, photoelectric and decay numericals; Ksp, pH, colligative, Nernst-type and
   half-life calculations; named reactions; hybridisation; taxonomy, physiology values, genetics ratios and

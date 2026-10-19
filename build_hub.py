@@ -21,6 +21,7 @@ from hub.core import REGISTRY, NEW_TYPES, AR_OPTIONS, register_new_types
 from hub import gen_bio11, gen_bio12, gen_phys, gen_chem, gen_extra, gen_ar  # noqa: F401  (register generators)
 from hub import gen_hy_bio11, gen_hy_bio12, gen_hy_chem, gen_hy_phys  # noqa: F401  (high-yield NEET topics, tagged "hy")
 from hub import gen_hy2_bio, gen_hy2_chem, gen_hy2_phys  # noqa: F401  (second high-yield batch, tagged "hy2")
+from hub import gen_hy3_bio, gen_hy3_chem, gen_hy3_phys  # noqa: F401  (third high-yield batch, tagged "hy3")
 from hub.syllabus import CHAPTERS, NEET_UNITS, chapter_for_bank
 from hub.notes import NOTES
 from hub.notes_hi import NOTES_HI
@@ -41,6 +42,7 @@ NEW_TYPES_PER_CHAPTER = {"Biology": 36, "Chemistry": 24, "Physics": 24}
 HY_SOURCE = "NEET high-yield topics"
 HY_PER_CHAPTER = {"Biology": 140, "Chemistry": 160, "Physics": 200}
 HY_TYPES_PER_CHAPTER = {"Biology": 30, "Chemistry": 20, "Physics": 16}
+HY_LATER_BATCHES = ("hy2", "hy3")
 MAX_FAILS = 120
 
 
@@ -213,12 +215,15 @@ def main():
     # High-yield content comes last so the ids of all earlier questions (and students' saved progress) stay the same.
     hy_rows, _ = generate(seen, rng, high(REGISTRY), HY_PER_CHAPTER, HY_SOURCE, batch=1)
     hy_type_rows, _ = generate(seen, rng, high(NEW_TYPES), HY_TYPES_PER_CHAPTER, HY_SOURCE, batch=1)
-    # Second high-yield batch (hub/gen_hy2_*.py, tag "hy2"), generated after the first so its ids come last.
-    high2 = lambda reg: [g for g in reg if g.get("tag") == "hy2"]
-    hy2_rows, _ = generate(seen, rng, high2(REGISTRY), HY_PER_CHAPTER, HY_SOURCE, batch=2)
-    hy2_type_rows, _ = generate(seen, rng, high2(NEW_TYPES), HY_TYPES_PER_CHAPTER, HY_SOURCE, batch=2)
-    hy_rows += hy2_rows
-    hy_type_rows += hy2_type_rows
+    # Later high-yield batches (hub/gen_hy2_*.py = tag "hy2", gen_hy3_*.py = "hy3", ...), each generated after the
+    # one before so its ids come last. A new batch always gets a new tag; earlier batch files are never edited.
+    for batch, tg in enumerate(HY_LATER_BATCHES, start=2):
+        of_tag = lambda reg, tg=tg: [g for g in reg if g.get("tag") == tg]
+        more_rows, _ = generate(seen, rng, of_tag(REGISTRY), HY_PER_CHAPTER, HY_SOURCE, batch=batch)
+        more_type_rows, _ = generate(seen, rng, of_tag(NEW_TYPES), HY_TYPES_PER_CHAPTER, HY_SOURCE, batch=batch)
+        print(f"  batch {batch} ({tg}): {len(more_rows) + len(more_type_rows)}")
+        hy_rows += more_rows
+        hy_type_rows += more_type_rows
     rows = bank_rows + new_rows + type_rows + hy_rows + hy_type_rows
     problems = validate(rows)
     print(f"From School MCQ Bank: {len(bank_rows)} (left out as non-science: {sum(skipped.values())})")
